@@ -14,10 +14,7 @@ buildscript {
             }
             credentials {
                 username = "mapbox"
-                password = project.hasProperty('MAPBOX_DOWNLOADS_TOKEN') ? project.property('MAPBOX_DOWNLOADS_TOKEN') : System.getenv('MAPBOX_DOWNLOADS_TOKEN')
-                if (password == null || password == "") {
-                    throw new GradleException("MAPBOX_DOWNLOADS_TOKEN isn't set. Set it to the project properties or to the enviroment variables.")
-                }
+                password = "pk.eyJ1IjoiY3phcmlmeSIsImEiOiJjbGczc2FtencwOGJnM25xZXF6OWo1a3pzIn0.cFeIuHJVuhJAxt-ED-yGPA"
             }
         }
     }
@@ -41,10 +38,7 @@ rootProject.allprojects {
             }
             credentials {
                 username = "mapbox"
-                password = project.hasProperty('MAPBOX_DOWNLOADS_TOKEN') ? project.property('MAPBOX_DOWNLOADS_TOKEN') : System.getenv('MAPBOX_DOWNLOADS_TOKEN')
-                if (password == null || password == "") {
-                    throw new GradleException("MAPBOX_DOWNLOADS_TOKEN isn't set. Set it to the project properties or to the enviroment variables.")
-                }
+                password = "pk.eyJ1IjoiY3phcmlmeSIsImEiOiJjbGczc2FtencwOGJnM25xZXF6OWo1a3pzIn0.cFeIuHJVuhJAxt-ED-yGPA"
             }
         }
     }
@@ -89,15 +83,15 @@ android {
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigation:copilot:2.10.1"
-    implementation "com.mapbox.navigation:ui-app:2.10.1"
+    implementation "com.mapbox.navigation:copilot:2.10.4"
+    implementation "com.mapbox.navigation:ui-app:2.10.4"
     implementation "com.mapbox.navigation:ui-dropin:2.10.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.jakewharton.timber:timber:4.7.1'
-    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
-    implementation "androidx.core:core-ktx:1.9.0"
-    implementation "com.google.android.material:material:1.8.0"
+    implementation "androidx.core:core-ktx:1.10.0"
+    implementation "com.google.android.material:material:1.9.0"
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
