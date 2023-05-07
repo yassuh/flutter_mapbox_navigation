@@ -52,7 +52,9 @@ rootProject.allprojects {
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
+configurations.all {
+    all*.exclude group: 'com.mapbox.plugin', module: 'maps-lifecycle'
+}
 android {
     compileSdkVersion 33
 
