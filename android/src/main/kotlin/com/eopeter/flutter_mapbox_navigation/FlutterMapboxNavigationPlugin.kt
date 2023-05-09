@@ -216,6 +216,7 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
     }
 
     override fun onCancel(args: Any?) {
+
         eventSink = null;
     }
 
