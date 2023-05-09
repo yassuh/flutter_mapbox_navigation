@@ -3,6 +3,8 @@ package com.eopeter.flutter_mapbox_navigation.activity
 import android.content.*
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.eopeter.flutter_mapbox_navigation.FlutterMapboxNavigationPlugin
 import com.eopeter.flutter_mapbox_navigation.models.MapBoxEvents
@@ -34,6 +36,11 @@ import com.mapbox.navigation.utils.internal.ifNonNull
 import eopeter.flutter_mapbox_navigation.R
 import eopeter.flutter_mapbox_navigation.databinding.NavigationActivityBinding
 import com.google.gson.Gson
+import com.mapbox.maps.EdgeInsets
+import com.mapbox.navigation.core.trip.session.TripSessionState
+import com.mapbox.navigation.core.trip.session.TripSessionStateObserver
+import com.mapbox.navigation.dropin.navigationview.NavigationViewListener
+import com.mapbox.navigation.ui.speedlimit.model.SpeedInfoValue
 
 class NavigationActivity : AppCompatActivity() {
 
@@ -42,15 +49,158 @@ class NavigationActivity : AppCompatActivity() {
     private var points: MutableList<Waypoint> = mutableListOf()
     private var waypointSet: WaypointSet = WaypointSet()
     private var canResetRoute: Boolean = false
+    private var shouldCloseActivity: Boolean = false
     private var accessToken: String? = null
     private var lastLocation: Location? = null
+    private val navigationStateListener = object : NavigationViewListener() {
+        override fun onFreeDrive() {
+            super.onFreeDrive()
+            Log.d("YASSUH_NAVIGATION","---Free Drive")
+        }
 
+        override fun onMapClicked(point: Point) {
+            super.onMapClicked(point)
+            Log.d("YASSUH_NAVIGATION","---Clicky")
+        }
+        override fun onManeuverCollapsed() {
+            super.onManeuverCollapsed()
+            shouldCloseActivity = true
+            Log.d("YASSUH_NAVIGATION","---Maneuver")
+        }
+
+        override fun onActiveNavigation() {
+            super.onActiveNavigation()
+            Log.d("YASSUH_NAVIGATION","---Active Navigation")
+        }
+
+        override fun onArrival() {
+            super.onArrival()
+
+            Log.d("YASSUH_NAVIGATION","---Arrival")
+        }
+
+        override fun onAudioGuidanceStateChanged(muted: Boolean) {
+            super.onAudioGuidanceStateChanged(muted)
+
+            Log.d("YASSUH_NAVIGATION","---Audio Guidance")
+        }
+
+        override fun onCameraPaddingChanged(padding: EdgeInsets) {
+            super.onCameraPaddingChanged(padding)
+
+            Log.d("YASSUH_NAVIGATION","---Padding Changed " + padding.bottom.toString() + padding.top.toString() + padding.right.toString())
+        }
+
+        override fun onManeuverExpanded() {
+            super.onManeuverExpanded()
+
+            Log.d("YASSUH_NAVIGATION","---Maneuver Expanded")
+        }
+
+        override fun onDestinationChanged(destination: Point?) {
+            super.onDestinationChanged(destination)
+            Log.d("YASSUH_NAVIGATION","---Destination")
+        }
+
+        override fun onDestinationPreview() {
+            super.onDestinationPreview()
+            Log.d("YASSUH_NAVIGATION","---Destination Preview")
+        }
+
+        override fun onFollowingCameraMode() {
+            super.onFollowingCameraMode()
+
+            Log.d("YASSUH_NAVIGATION","---Following camera mode")
+        }
+
+        override fun onIdleCameraMode() {
+            super.onIdleCameraMode()
+
+            Log.d("YASSUH_NAVIGATION","---Idle Camera Mode")
+        }
+
+        override fun onInfoPanelCollapsed() {
+            super.onInfoPanelCollapsed()
+
+            Log.d("YASSUH_NAVIGATION","---Info panel collapsed")
+        }
+
+        override fun onInfoPanelDragging() {
+            super.onInfoPanelDragging()
+
+            Log.d("YASSUH_NAVIGATION","---Info panel dragging")
+        }
+
+        override fun onInfoPanelExpanded() {
+            super.onInfoPanelExpanded()
+
+            Log.d("YASSUH_NAVIGATION","---Info panel expanded")
+        }
+
+        override fun onInfoPanelHidden() {
+            super.onInfoPanelHidden()
+
+            Log.d("YASSUH_NAVIGATION","---Info panel hidden")
+        }
+
+        override fun onInfoPanelSettling() {
+            super.onInfoPanelSettling()
+            Log.d("YASSUH_NAVIGATION","---Info panel settling")
+        }
+
+        override fun onInfoPanelSlide(slideOffset: Float) {
+            super.onInfoPanelSlide(slideOffset)
+            if(slideOffset.toDouble() == -1.0 && shouldCloseActivity){
+                finish()
+            }
+            Log.d("YASSUH_NAVIGATION", "---Info panel slide offset $slideOffset")
+        }
+
+        override fun onOverviewCameraMode() {
+            super.onOverviewCameraMode()
+            Log.d("YASSUH_NAVIGATION","---Overview camera mode")
+        }
+
+        override fun onRouteFetchCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+            super.onRouteFetchCanceled(routeOptions, routerOrigin)
+
+            Log.d("YASSUH_NAVIGATION","---Route fetch cancelled")
+        }
+        
+        override fun onRoutePreview() {
+            super.onRoutePreview()
+
+            Log.d("YASSUH_NAVIGATION","---Route preview")
+        }
+
+        override fun onRouteFetchFailed(reasons: List<RouterFailure>, routeOptions: RouteOptions) {
+            super.onRouteFetchFailed(reasons, routeOptions)
+            Log.d("YASSUH_NAVIGATION","---Route Failed")
+        }
+
+        override fun onRouteFetchSuccessful(routes: List<NavigationRoute>) {
+            super.onRouteFetchSuccessful(routes)
+            Log.d("YASSUH_NAVIGATION","---Route Fetch Successful")
+        }
+
+        override fun onRouteFetching(requestId: Long) {
+            super.onRouteFetching(requestId)
+
+            Log.d("YASSUH_NAVIGATION","---Route Fetching")
+        }
+
+        override fun onSpeedInfoClicked(speedInfo: SpeedInfoValue?) {
+            super.onSpeedInfoClicked(speedInfo)
+
+            Log.d("YASSUH_NAVIGATION","---Speed info")
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_AppCompat_NoActionBar)
         binding = NavigationActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        binding.root.addListener(navigationStateListener)
         accessToken =
             PluginUtilities.getResourceFromContext(this.applicationContext, "mapbox_access_token")
 
@@ -61,7 +211,6 @@ class NavigationActivity : AppCompatActivity() {
         MapboxNavigationApp
             .setup(navigationOptions)
             .attach(this)
-
         if (FlutterMapboxNavigationPlugin.allowsClickToSetDestination) {
             binding.navigationView.registerMapObserver(onMapLongClick)
             binding.navigationView.customizeViewOptions {
@@ -130,6 +279,7 @@ class NavigationActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
+
         super.onStop()
     }
 
@@ -148,6 +298,7 @@ class NavigationActivity : AppCompatActivity() {
                 .build(),
             callback = object : NavigationRouterCallback {
                 override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
+
                     sendEvent(MapBoxEvents.ROUTE_BUILD_CANCELLED)
                 }
 
@@ -228,6 +379,7 @@ class NavigationActivity : AppCompatActivity() {
                 override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
                     sendEvent(MapBoxEvents.ROUTE_BUILD_CANCELLED)
                 }
+
             }
         )
     }
@@ -272,6 +424,7 @@ class NavigationActivity : AppCompatActivity() {
         val progressEvent = MapBoxRouteProgressEvent(routeProgress)
         FlutterMapboxNavigationPlugin.distanceRemaining = routeProgress.distanceRemaining
         FlutterMapboxNavigationPlugin.durationRemaining = routeProgress.durationRemaining
+
         sendEvent(progressEvent)
     }
 
@@ -288,7 +441,6 @@ class NavigationActivity : AppCompatActivity() {
 
         }
     }
-
     /**
      * Gets notified with location updates.
      *
@@ -303,6 +455,7 @@ class NavigationActivity : AppCompatActivity() {
         override fun onNewRawLocation(rawLocation: Location) {
             // no impl
         }
+
     }
 
     /**
@@ -328,4 +481,6 @@ class NavigationActivity : AppCompatActivity() {
             return false
         }
     }
+
+
 }
