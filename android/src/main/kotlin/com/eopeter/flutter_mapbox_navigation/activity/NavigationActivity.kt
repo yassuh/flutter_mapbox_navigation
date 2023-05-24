@@ -256,10 +256,13 @@ class NavigationActivity : AppCompatActivity() {
         if (p != null) points = p
 
         // TODO set the style Uri
-        var styleUrl = FlutterMapboxNavigationPlugin.mapStyleUrlDay
-        if (styleUrl == null) styleUrl = Style.MAPBOX_STREETS
+             // TODO: set the style Uri
+        var styleUrl = FlutterMapboxNavigationPlugin.mapStyleUrlDay ?: Style.MAPBOX_STREETS
+
         // set map style
-        binding.navigationView.customizeViewStyles {}
+        binding.navigationView.retrieveMap().addOnMapReadyCallback {
+            it.setStyle(styleUrl)
+        }
         points.map { waypointSet.add(it) }
         requestRoutes(waypointSet)
     }
