@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -119,19 +118,13 @@ class MethodChannelFlutterMapboxNavigation
   }
 
   String _removeInvalidQuotes(String jsonString) {
-    return jsonString
-        .replaceAll('"{', '{')
-        .replaceAll('}"', '}')
-        .replaceAll('"[', '[')
-        .replaceAll(']"', ']');
+    return jsonString.replaceAll('"[{"', '[{').replaceAll('"}]"', '}]');
   }
 
   RouteEvent _parseRouteEvent(String jsonString) {
     RouteEvent event;
-    log(jsonString);
-    debugPrint(jsonString);
-    print(jsonString);
-    var map = json.decode(jsonString);
+    var correctedJsonString = _removeInvalidQuotes(jsonString);
+    var map = json.decode(correctedJsonString);
     var progressEvent = RouteProgressEvent.fromJson(map);
     if (progressEvent.isProgressEvent!) {
       event = RouteEvent(
