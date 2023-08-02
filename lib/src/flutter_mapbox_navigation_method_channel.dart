@@ -118,7 +118,7 @@ class MethodChannelFlutterMapboxNavigation
   }
 
   String _removeInvalidQuotes(String jsonString) {
-    return jsonString.replaceAll('"[{"', '[{').replaceAll('"}]"', '}]');
+    return jsonString.replaceAll('"[{"', '[{"').replaceAll('"}]"', '"}]');
   }
 
   RouteEvent _parseRouteEvent(String jsonString) {
